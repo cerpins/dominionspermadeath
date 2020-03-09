@@ -1,0 +1,11 @@
+{
+  "type": "code",
+  "modid": "cmpermadeath",
+  "name": "cmpermadeath",
+  "author": "codemeister32",
+  "description": "Autokicks any player that dies. Role 'root' can undo this by calling the command '/unautokick PlayerName'.",
+  "version": "1.0.1",
+  "dependency": {
+    "game": ""
+  }
+}

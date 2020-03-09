@@ -1,0 +1,2 @@
+# cmpermadeath
+ perma death mod
