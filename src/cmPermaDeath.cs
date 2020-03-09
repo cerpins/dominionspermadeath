@@ -1,78 +1,100 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vintagestory.API.Client;
+﻿using System.Collections.Generic;
 using Vintagestory.API.Common;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
 using Vintagestory.API.Config;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 namespace cmpermadeath.src
 {
-    class cmPermaDeath : ModSystem
+    class CmPermaDeath : ModSystem
     {
-        bool IsAutokick(IServerPlayerData d)
+        void InitSaveData(ISaveGame save)
         {
-            string kickValue;
-            if (!d.CustomPlayerData.TryGetValue("cmAutokick", out kickValue)) return false;
-
-            return (kickValue == "1");
+            //Make sure there is no null data, else get calls will fail.
+            if (!Utils.HasSaveData(save, "cmPermaDeath"))
+            {
+                Utils.SetSaveData(save, "cmPermaDeath", new List<string>());
+            }
         }
 
-        void SetAutokick(IServerPlayerData p, string flag = "1")
+        bool IsPermaDeath(ISaveGame save, string uid)
         {
-            p.CustomPlayerData["cmAutokick"] = flag;
+            List<string> playerIds = Utils.GetSaveData<List<string>>(save, "cmPermaDeath");
+
+            return playerIds.Exists(puid => (@puid == @uid));
         }
 
-        void CommandUnautokick(IServerPlayer p, string name, ICoreServerAPI api)
+        void SetPermaDeath(ISaveGame save, string uid, bool add = true)
         {
-            IServerPlayerData target = api.PlayerData.GetPlayerDataByLastKnownName(name);
-            SetAutokick(target, "0");
+            if (IsPermaDeath(save, @uid)) return;
 
-            p.SendMessage(GlobalConstants.GeneralChatGroup, "The spark of life has been relit.", EnumChatType.CommandSuccess);
+            List<string> playerIds = Utils.GetSaveData<List<string>>(save, "cmPermaDeath");
+
+            if (add)
+            {
+                playerIds.Add(@uid);
+            }
+            else
+            {
+                playerIds.Remove(@uid);
+            }
+
+            Utils.SetSaveData(save, "cmPermaDeath", playerIds);
+        }
+
+        //commands
+        void CmdPermaDeath(ICoreServerAPI api, IServerPlayer p, CmdArgs args)
+        {
+            if (args.Length < 2)
+            {
+                p.SendMessage(GlobalConstants.AllChatGroups, "Incorrect arguments.", EnumChatType.AllGroups);
+                return;
+            }
+            
+            string uid = api.PlayerData.GetPlayerDataByLastKnownName(args[0]).PlayerUID;
+
+            SetPermaDeath(
+                api.WorldManager.SaveGame, 
+                @uid, 
+                args[1] == "true"
+            );
+
+            p.SendMessage(GlobalConstants.AllChatGroups, "Player PermaDeath toggled.", EnumChatType.AllGroups);
         }
 
         // events
-        void OnJoin(IServerPlayer p, ICoreServerAPI api)
+        void OnJoin(ICoreServerAPI api, IServerPlayer p)
         {
-            if (!IsAutokick(p.ServerData)) return;
-            p.Disconnect();
-            api.BroadcastMessageToAllGroups(
-                "Wails echo.",
-                EnumChatType.Notification
-            );
+            if (IsPermaDeath(api.WorldManager.SaveGame, @p.PlayerUID))
+            {
+                p.Disconnect();
+                api.BroadcastMessageToAllGroups("Wails echo.", EnumChatType.Notification);
+            }
         }
 
-        void OnDeath(IServerPlayer p, ICoreServerAPI api)
+        void OnDeath(ICoreServerAPI api, IServerPlayer p)
         {
-            api.Server.LogEvent("Setting player as autokick.");
-            SetAutokick(p.ServerData);
-            p.Disconnect("Death was imminent");
+            SetPermaDeath(api.WorldManager.SaveGame, @p.PlayerUID);
+            p.Disconnect("You've died."); 
 
-            api.BroadcastMessageToAllGroups(
-                "The life of " + p.ServerData.LastKnownPlayername.ToUpper() + " has been extinguished.", 
-                EnumChatType.Notification
-            );
-            //send out soundeffect globally
+            api.BroadcastMessageToAllGroups("The life of " + p.ServerData.LastKnownPlayername.ToUpper() + " has been extinguished.", EnumChatType.Notification);
         }
-
 
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
 
-            api.RegisterCommand("unautokick", "remove autokick from player by name", "", (IServerPlayer p, int groupId, CmdArgs args) =>
-            CommandUnautokick(p, args[0], api), "root");
+            InitSaveData(api.WorldManager.SaveGame);
 
-            api.Event.PlayerJoin += (IServerPlayer p) => OnJoin(p, api);
-            api.Event.PlayerDeath += (IServerPlayer p, DamageSource dmg) => OnDeath(p, api);
+            api.RegisterCommand(
+                "permadeath", 
+                "args[playername][true/false]", 
+                "", 
+                (IServerPlayer p, int groupId, CmdArgs args) => CmdPermaDeath(api, p, args), 
+                "root"
+            );
+
+            api.Event.PlayerJoin += (IServerPlayer p) => OnJoin(api, p);
+            api.Event.PlayerDeath += (IServerPlayer p, DamageSource dmg) => OnDeath(api, p);
         }
 
     }

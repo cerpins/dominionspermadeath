@@ -3,8 +3,8 @@
   "modid": "cmpermadeath",
   "name": "cmpermadeath",
   "author": "codemeister32",
-  "description": "Autokicks any player that dies. Role 'root' can undo this by calling the command '/unautokick PlayerName'.",
-  "version": "1.0.1",
+  "description": "Enables PermaDeath on any player that dies. Toggle as 'root' using /permadeath [PlayerName] [true/false].",
+  "version": "1.0.2",
   "dependency": {
     "game": ""
   }
