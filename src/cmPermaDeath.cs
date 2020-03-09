@@ -58,7 +58,7 @@ namespace cmpermadeath.src
                 args[1] == "true"
             );
 
-            p.SendMessage(GlobalConstants.AllChatGroups, "Player PermaDeath toggled.", EnumChatType.AllGroups);
+            p.SendMessage(GlobalConstants.ConsoleGroup, "Player PermaDeath toggled.", EnumChatType.CommandSuccess);
         }
 
         // events
@@ -67,7 +67,6 @@ namespace cmpermadeath.src
             if (IsPermaDeath(api.WorldManager.SaveGame, @p.PlayerUID))
             {
                 p.Disconnect();
-                api.BroadcastMessageToAllGroups("Wails echo.", EnumChatType.Notification);
             }
         }
 
