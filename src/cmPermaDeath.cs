@@ -25,12 +25,11 @@ namespace cmpermadeath.src
 
         void SetPermaDeath(ISaveGame save, string uid, bool add = true)
         {
-            if (IsPermaDeath(save, @uid)) return;
-
             List<string> playerIds = Utils.GetSaveData<List<string>>(save, "cmPermaDeath");
 
             if (add)
             {
+                if (IsPermaDeath(save, @uid)) return;
                 playerIds.Add(@uid);
             }
             else
@@ -42,23 +41,32 @@ namespace cmpermadeath.src
         }
 
         //commands
-        void CmdPermaDeath(ICoreServerAPI api, IServerPlayer p, CmdArgs args)
+        void CmdPermaDeath(ICoreServerAPI api, CmdArgs args)
         {
             if (args.Length < 2)
             {
-                p.SendMessage(GlobalConstants.AllChatGroups, "Incorrect arguments.", EnumChatType.AllGroups);
+                api.Server.LogNotification("Incorrect arguments");
                 return;
             }
             
-            string uid = api.PlayerData.GetPlayerDataByLastKnownName(args[0]).PlayerUID;
+            string uid = api.PlayerData.GetPlayerDataByLastKnownName(args[0])?.PlayerUID;
+
+            if (@uid == null)
+            {
+                api.Server.LogNotification("Failed to get UID.");
+                return;
+            }
+
+            //List<string> li = Utils.GetSaveData<List<string>>(api.WorldManager.SaveGame, "cmPermaDeath");
+            //li.ForEach(i => api.Server.LogNotification("PermaDeath Item: " + i));
 
             SetPermaDeath(
                 api.WorldManager.SaveGame, 
                 @uid, 
-                args[1] == "true"
+                (args[1] == "true")
             );
 
-            p.SendMessage(GlobalConstants.ConsoleGroup, "Player PermaDeath toggled.", EnumChatType.CommandSuccess);
+            api.Server.LogNotification("Set PermaDeath from server. ");
         }
 
         // events
@@ -66,7 +74,7 @@ namespace cmpermadeath.src
         {
             if (IsPermaDeath(api.WorldManager.SaveGame, @p.PlayerUID))
             {
-                p.Disconnect();
+                p.Disconnect("You've died.");
             }
         }
 
@@ -88,7 +96,7 @@ namespace cmpermadeath.src
                 "permadeath", 
                 "args[playername][true/false]", 
                 "", 
-                (IServerPlayer p, int groupId, CmdArgs args) => CmdPermaDeath(api, p, args), 
+                (IServerPlayer p, int groupId, CmdArgs args) => CmdPermaDeath(api, args), 
                 "root"
             );
 

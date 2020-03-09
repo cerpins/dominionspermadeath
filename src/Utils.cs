@@ -33,7 +33,6 @@ namespace cmpermadeath.src
         {
             return (save.GetData(@key) != null);
         }
-
         public static T GetSaveData<T>(ISaveGame save, string key)
         {
             return ByteArrToVal<T>(save.GetData(@key));

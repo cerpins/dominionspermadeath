@@ -4,7 +4,7 @@
   "name": "cmpermadeath",
   "author": "codemeister32",
   "description": "Enables PermaDeath on any player that dies. Toggle as 'root' using /permadeath [PlayerName] [true/false].",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "dependency": {
     "game": ""
   }
