@@ -1,10 +1,11 @@
-# cmpermadeath
- Stores your id in a worldsave string list on death. If your name is discovered here, you are disconnected.
- Currently experiencing an error in multiplayer play, where you cannot reconnect to the server after you die,
- even after removing your id from mentioned list
+# permadeath
+ * Stores a list of players that die in the world save data.
+ * Kicks you upon death.
+ * Kicks you upon reconnecting, if you are stored in this list.
  
-# todo
- - when in singleplayer, make flag world-specific (currently autokicks you from every world upon death) DONE
+ Use [/dominionspermadeath UserName true/false] to set manually.
+ All commands/savedata/customdata is prefaced with "dominions".
  
-# note
-point out code inaccuracies, this is the first game I've modded and haven't used c# much.
+ Point out any issues, I am new to modding.
+ Check out dominions discord, we are slowly starting up a modded RPG hardcore server.
+ https://discord.gg/jG5YTDA
