@@ -1,16 +1,11 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Server;
 
-namespace cmpermadeath.src
+namespace dominionspermadeath.src
 {
     static class Utils
-    { 
+    {
         //Utilities, move these out of scope
         static byte[] ValToByteArr<T>(T val)
         {

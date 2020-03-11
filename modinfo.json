@@ -1,10 +1,12 @@
 {
   "type": "code",
-  "modid": "cmpermadeath",
-  "name": "cmpermadeath",
+  "modid": "dominionspermadeath",
+  "name": "dominionspermadeath",
   "author": "codemeister32",
-  "description": "Enables PermaDeath on any player that dies. Toggle as 'root' using /permadeath [PlayerName] [true/false].",
-  "version": "1.0.4",
+  "description": "World bans any player that dies, or set it manually as 'root' using /dominionspermadeath [PlayerName] [true/false].",
+  "version": "1.0.6",
+  "side": "server",
+  "requiredonclient": "false",
   "dependency": {
     "game": ""
   }
